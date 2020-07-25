@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mail/models/user/user.dart';
+import 'package:mailee/auth/user.dart';
 
 class Authentication{
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   User _gettingUser(FirebaseUser user){
-    return user != null ? User(uid: user.uid , email: user.email) : null ;
+    return user != null ? User(uid: user.uid , email: user.email, image: user.photoUrl,name: user.displayName) : null ;
   }
 
   Stream<User> get user{

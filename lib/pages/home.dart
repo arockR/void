@@ -1,15 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mail/models/mail/con_model.dart';
-import 'package:mail/models/mail/mail_model.dart';
-import 'package:mail/models/user/user.dart';
-import 'package:mail/pages/bin.dart';
-import 'package:mail/pages/create_mail.dart';
-import 'package:mail/pages/important_mails.dart';
-import 'package:mail/pages/inbox.dart';
-import 'package:mail/pages/saved_mails.dart';
-import 'package:mail/pages/settings.dart';
-import 'package:mail/ui_screens/mail_home.dart';
+import 'package:mailee/auth/user.dart';
+import 'package:mailee/models/mail/mail.dart';
+import 'package:mailee/models/mail/mail_model.dart';
+import 'package:mailee/pages/groups.dart';
+import 'package:mailee/pages/mail/bin.dart';
+import 'package:mailee/pages/mail/create_mail.dart';
+import 'package:mailee/pages/mail/important.dart';
+import 'package:mailee/pages/mail/mail_home.dart';
+import 'package:mailee/pages/mail/sent.dart';
+import 'package:mailee/pages/settings.dart';
+import 'package:mailee/pages/vault.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -18,99 +18,55 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  int _currentindex = 0;
+  final List<Widget> _pageroutes = [
+    HomeContent(),
+    Groups(),
+    CloudVault(),
+    Settings(),
+  ];
   @override
   Widget build(BuildContext context) {
 
-   getUser(user)async{
-      FirebaseAuth _auth = FirebaseAuth.instance;
-      final user =await _auth.currentUser();
-      final username = user.displayName;
-   }
-    
+    //final user = Provider.of<User>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('mailee'),
+        backgroundColor: Colors.white,
         elevation: 0,
+        title: Text('VOID',style: TextStyle(color: Colors.indigo,fontWeight: FontWeight.bold,fontSize: 23.0),),
         actions: <Widget>[
-          IconButton(
-          icon: Icon(Icons.add),
-          iconSize: 30,
-          color: Colors.black54,
+          IconButton(icon: Icon(Icons.add), 
+          color: Colors.black,
           onPressed: (){
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => (CreateMail())));
-          }
-          ),
+          })
         ],
-        ),
-        drawer: Drawer(
-          child: ListView(
-            children: <Widget>[
-
-              Container(
-                padding: EdgeInsets.only(top:30.0),
-                height: 150.0,
-                color: Colors.blueAccent,
-                child: ListTile(
-                  leading: Container(
-                    width: 55.0,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(70.0), color: Colors.white,),
-                  ),
-                  title: Text( '' ,style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w500),),
-                ),
-              ),
-
-              ListTile(
-                title: Text('Inbox', style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500),),
-                onTap: (){
-                   Navigator.pop(context);
-                   Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Inbox(title:'inbox')));
-                },
-              ),
-
-              ListTile(
-                title: Text('Saved', style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500),),
-                onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => (SavedMails())));
-                },
-              ),
-
-              ListTile(
-                title: Text('Important', style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500),),
-                onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => (ImportantMails())));
-                },
-              ),
-
-              ListTile(
-                title: Text('bin', style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500),),
-                onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => (Bin())));
-                },
-              ),
-              ListTile(
-                title: Text('settings', style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500),),
-                //trailing: Icon(Icons.cloud,color: Colors.blueAccent,size: 20.0,),
-                onTap: (){Navigator.of(context).push(MaterialPageRoute(builder: (context) => (Settings())));},
-              ),
-               InkWell(
-                 onTap: (){
-                  // _logOut();
-                 },
-                  child: ListTile(
-                  title: Text('logout', style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500),),
-              ),
-               ),
-
-
-            ],
-            ),
-        ),
-      //backgroundColor: Colors.blue,
-      body :HomeContent()
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black26,
+        currentIndex: _currentindex,
+        items: [
+        BottomNavigationBarItem(icon: Icon(Icons.home),title: Text('Home'),backgroundColor: Colors.blueAccent ),
+        BottomNavigationBarItem(icon: Icon(Icons.people_outline),title: Text('Groups')),
+        BottomNavigationBarItem(icon: Icon(Icons.cloud_upload),title: Text('Vault')),
+        BottomNavigationBarItem(icon: Icon(Icons.settings),title: Text('settings')),
+      ],
+      onTap:(index){
+        setState(() {
+          _currentindex = index;
+        });
+      } ,
+      ),
+      body: _pageroutes[_currentindex]
     );
   }
 }
+
+
+
+
 
 
 class HomeContent extends StatefulWidget {
@@ -121,14 +77,75 @@ class HomeContent extends StatefulWidget {
 class _HomeContentState extends State<HomeContent> {
   @override
   Widget build(BuildContext context) {
-
     final user = Provider.of<User>(context);
 
-    //FirebaseUser user = await _auth.currentUser();
     return StreamProvider<List<GetMails>>.value(
       value: MailService(email: user.email).mail,
-      child:  MailUi(),
-      
-      );
+      child: Column(
+      children: <Widget>[
+        Expanded(
+          child: ListView(
+            children: <Widget>[
+
+              SizedBox(height: 10,),
+              Container( 
+                margin: EdgeInsets.symmetric(horizontal: 15.0),
+                decoration: BoxDecoration(color: Colors.blueAccent[100],borderRadius:BorderRadius.circular(10.0)),
+                child: ListTile(
+                  title: Text('Sent',style: TextStyle(fontSize:17.0,fontWeight:FontWeight.w400),),
+                  trailing: Icon(Icons.navigate_next),
+                  onTap: (){
+                     Navigator.of(context).push(MaterialPageRoute(builder: (context) => (SentMails())));
+                  },
+                ),
+              ),
+              SizedBox(height: 10,),
+
+              Container( 
+                margin: EdgeInsets.symmetric(horizontal: 15.0),
+                decoration: BoxDecoration(color: Colors.blueAccent[100],borderRadius: BorderRadius.circular(10.0)),
+                child: ListTile(
+                  title: Text('Important',style: TextStyle(fontSize:17.0,fontWeight: FontWeight.w400),),
+                  trailing: Icon(Icons.navigate_next),
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => (ImportantMails())));
+                  },
+                ),
+              ),
+              SizedBox(height: 10,),
+
+              Container( 
+                margin: EdgeInsets.symmetric(horizontal: 15.0),
+                decoration: BoxDecoration(color: Colors.blueAccent[100],borderRadius: BorderRadius.circular(10.0)),
+                child: ListTile(
+                  title: Text('Bin',style: TextStyle(fontSize:17.0,fontWeight: FontWeight.w400),),
+                  trailing: Icon(Icons.navigate_next),
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => (Bin())));
+                  },
+                ),
+              ),
+
+              SizedBox(height: 10,),
+
+              Container(
+                padding: EdgeInsets.only(left:10.0,top: 20.0,bottom: 25.0),
+                child: Text('Inbox',style: TextStyle(fontSize:22.0,fontWeight: FontWeight.w500),),
+              ),
+
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: double.infinity,
+                ),
+            child:Container(child:MailUi())
+            )
+
+            ]),
+        ),
+          
+      ]),
+    );
   }
 }
+
+

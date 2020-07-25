@@ -3,7 +3,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
 class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -37,8 +36,6 @@ class _SettingsUiState extends State<SettingsUi> {
     SnackBar(
       content: Text("Profile has been updated"),
       backgroundColor: Colors.blueAccent,
-       action: SnackBarAction(
-          label: 'UNDO',onPressed: (){},)
     ),
     );
   }
@@ -49,10 +46,9 @@ class _SettingsUiState extends State<SettingsUi> {
       FirebaseAuth _auth = FirebaseAuth.instance;
       FirebaseUser user =await _auth.currentUser();
         UserUpdateInfo updateInfo = UserUpdateInfo();
-        updateInfo.displayName = _nameController.text;
-        updateInfo.photoUrl = userImage.path;
-        final updated = user.updateProfile(updateInfo);
-        updated.whenComplete(()=> onUpdated());
+        updateInfo.displayName = 'arock';//_nameController.text;
+       // updateInfo.photoUrl = userImage.path;
+        await user.updateProfile(updateInfo);
       }
 
    Widget  updateDialog(){

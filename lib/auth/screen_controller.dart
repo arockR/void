@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mail/auth/screens/sign_in.dart';
-import 'package:mail/auth/screens/sign_up.dart';
+import 'package:mailee/auth/screens/signin.dart';
+import 'package:mailee/auth/screens/signup.dart';
 
 class AuthControll extends StatefulWidget {
   AuthControll({Key key}) : super(key: key);
